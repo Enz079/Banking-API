@@ -5,12 +5,19 @@ API REST per la gestione di un conto bancario semplificato con supporto per depo
 ## Struttura del progetto
 
 mini-banking-api/
+
 ├── index.php # Entry point dell'applicazione
+
 ├── TransactionsController.php # Controller principale
+
 ├── config/
+
 │ └── database.php # Configurazione database
+
 ├── docker-compose.yml # Configurazione Docker
+
 ├── Dockerfile # Dockerfile per PHP
+
 └── README.md # Questo file
 
 
