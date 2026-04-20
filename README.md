@@ -25,7 +25,7 @@ mini-banking-api/
 
 ```bash
 # Clona il repository
-git clone <repository-url>
+git clone https://github.com/Enz079/Banking-API.git
 cd mini-banking-api
 
 # Avvia i container
