@@ -1,25 +1,83 @@
-Schema del Database Il database (MySQL/MariaDB) è composto da due tabelle principali per garantire la tracciabilità di ogni operazione
+# Mini Banking API
 
-\-- Tabella dei conti CREATE TABLE accounts ( id INT AUTO\_INCREMENT PRIMARY KEY, owner\_name VARCHAR(255) NOT NULL, currency VARCHAR(3) DEFAULT 'EUR', created\_at TIMESTAMP DEFAULT CURRENT\_TIMESTAMP );
+API REST per la gestione di un conto bancario semplificato con supporto per depositi, prelievi, movimenti e conversioni di valuta (fiat e crypto).
 
-\-- Tabella dei movimenti CREATE TABLE transactions ( id INT AUTO\_INCREMENT PRIMARY KEY, account\_id INT NOT NULL, amount DECIMAL(15, 2) NOT NULL, description TEXT, balance\_after DECIMAL(15, 2), created\_at TIMESTAMP DEFAULT CURRENT\_TIMESTAMP, FOREIGN KEY (account\_id) REFERENCES accounts(id) ); 2. Scelte progettuali Calcolo del saldo: Il saldo non è un valore statico. Viene calcolato dinamicamente come differenza tra la somma dei depositi e la somma dei prelievi
+## Struttura del progetto
 
-Integrità dei dati: I prelievi sono autorizzati solo se l'importo è disponibile (il saldo non può andare in negativo)
+mini-banking-api/
+├── index.php # Entry point dell'applicazione
+├── TransactionsController.php # Controller principale
+├── config/
+│ └── database.php # Configurazione database
+├── docker-compose.yml # Configurazione Docker
+├── Dockerfile # Dockerfile per PHP
+└── README.md # Questo file
 
-Limitazioni PUT: Per preservare lo storico contabile, l'endpoint di modifica agisce solo sul campo description
 
-Integrazione esterna: Utilizzo di Frankfurter per i tassi fiat e Binance Spot API per le quotazioni crypto (con precisione fino a 8 decimali)
+## Installazione e avvio con Docker
 
-Ambiente Docker: Il progetto è predisposto per essere avviato tramite Docker
+```bash
+# Clona il repository
+git clone <repository-url>
+cd mini-banking-api
 
-Endpoint e Esempi di Chiamata Metodo Endpoint Descrizione GET/accounts/1/balance Visualizza il saldo attuale POST/accounts/1/deposits Registra un nuovo deposito POST/accounts/1/withdrawals Registra un nuovo prelievo GET/accounts/1/transactions Elenco completo dei movimenti PUT/accounts/1/transactions/{id} Modifica descrizione movimento GET/accounts/1/balance/convert/fiat Conversione saldo (es. USD) GET/accounts/1/balance/convert/crypto Conversione saldo (es. BTC)
+# Avvia i container
+docker-compose up -d
 
-Esempi di chiamata (curl) Registrare un deposito: curl -X POST http://localhost/accounts/1/deposits
+# Installa le dipendenze PHP
+docker exec -it mini-banking-php composer install
 
-\-H "Content-Type: application/json"
+## Database
 
-\-d '{"amount": 500.00, "description": "Accredito stipendio"}' Eseguire un prelievo: curl -X POST http://localhost/accounts/1/withdrawals
+CREATE TABLE accounts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    owner_name VARCHAR(255) NOT NULL,
+    currency VARCHAR(3) DEFAULT 'EUR',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-\-H "Content-Type: application/json"
+CREATE TABLE transactions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    account_id INT NOT NULL,
+    type ENUM('deposit', 'withdrawal') NOT NULL,
+    amount DECIMAL(15, 2) NOT NULL,
+    description TEXT,
+    balance_after DECIMAL(15, 2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (account_id) REFERENCES accounts(id)
+);
 
-\-d '{"amount": 50.00, "description": "Prelievo ATM"}' Conversione in Dollari (Fiat): curl -X GET "http://localhost/accounts/1/balance/convert/fiat?to=USD" Conversione in Bitcoin (Crypto): curl -X GET "http://localhost/accounts/1/balance/convert/crypto?to=BTC" 4. Gestione Errori L'API risponde con codici standard per garantire chiarezza: 400 Bad Request: dati mancanti o formati non validi. 404 Not Found: donto o movimento inesistente. 422 Unprocessable entity: violazione regole di business (es. saldo insufficiente per prelievo). 502 Bad Gateway: Errore di comunicazione con Frankfurter o Binance.
+
+## Endpoint
+
+GET    /accounts/{id}/transactions
+GET    /accounts/{id}/transactions/{idT}
+POST   /accounts/{id}/deposits
+POST   /accounts/{id}/withdrawals
+PUT    /accounts/{id}/transactions/{idT}
+DELETE /accounts/{id}/transactions/{idT}
+GET    /accounts/{id}/balance
+GET    /accounts/{id}/balance/convert/fiat?to={currency}
+GET    /accounts/{id}/balance/convert/crypto?to={crypto}
+
+## Esempi di chiamata
+
+1. Visualizzare il saldo: curl -X GET http://localhost:8080/accounts/1/balance
+
+2. Registrare un deposito:curl -X POST http://localhost:8080/accounts/1/deposits \
+  -H "Content-Type: application/json" \
+  -d '{"amount": 500.00, "description": "Accredito stipendio"}'
+
+3. Eseguire un prelievo: curl -X POST http://localhost:8080/accounts/1/withdrawals \
+  -H "Content-Type: application/json" \
+  -d '{"amount": 50.00, "description": "Prelievo ATM"}'
+
+4. Elenco movimenti: curl -X GET http://localhost:8080/accounts/1/transactions
+
+5. Dettaglio movimento: curl -X GET http://localhost:8080/accounts/1/transactions/1
+
+6. Modificare descrizione movimento: curl -X PUT http://localhost:8080/accounts/1/transactions/1 \
+  -H "Content-Type: application/json" \
+  -d '{"description": "Stipendio Gennaio 2024"}'
+
+7. Eliminare ultimo movimento: curl -X DELETE http://localhost:8080/accounts/1/transactions/2
