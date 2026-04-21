@@ -1,6 +1,6 @@
 # Mini Banking API
 
-API REST per la gestione di un conto bancario semplificato con supporto per depositi, prelievi, movimenti e conversioni di valuta (fiat e crypto).
+API per la gestione di un conto bancario semplificato con supporto per depositi, prelievi, movimenti e conversioni di valuta (fiat e crypto).
 
 ## Struttura del progetto
 
@@ -10,13 +10,11 @@ mini-banking-api/
 
 ├── TransactionsController.php # Controller principale
 
-├── config/
+├── build/
 
-│ └── database.php # Configurazione database
+│ └── init.sql # Configurazione database
 
 ├── docker-compose.yml # Configurazione Docker
-
-├── Dockerfile # Dockerfile per PHP
 
 └── README.md # Questo file
 
@@ -29,10 +27,7 @@ git clone https://github.com/Enz079/Banking-API.git
 cd mini-banking-api
 
 # Avvia i container
-docker-compose up -d
-
-# Installa le dipendenze PHP
-docker exec -it mini-banking-php composer install
+MY_UID=$(id -u) MY_GID=$(id -g) docker-compose up
 
 ## Database
 
@@ -69,22 +64,29 @@ GET    /accounts/{id}/balance/convert/crypto?to={crypto}
 
 ## Esempi di chiamata
 
-1. Visualizzare il saldo: curl -X GET http://localhost:8080/accounts/1/balance
+1. Visualizzare il saldo: 
+curl -X GET http://localhost:8080/accounts/1/balance
 
-2. Registrare un deposito:curl -X POST http://localhost:8080/accounts/1/deposits \
+2. Registrare un deposito:
+curl -X POST http://localhost:8080/accounts/1/deposits \
   -H "Content-Type: application/json" \
   -d '{"amount": 500.00, "description": "Accredito stipendio"}'
 
-3. Eseguire un prelievo: curl -X POST http://localhost:8080/accounts/1/withdrawals \
+3. Eseguire un prelievo: 
+curl -X POST http://localhost:8080/accounts/1/withdrawals \
   -H "Content-Type: application/json" \
   -d '{"amount": 50.00, "description": "Prelievo ATM"}'
 
-4. Elenco movimenti: curl -X GET http://localhost:8080/accounts/1/transactions
+4. Elenco movimenti: 
+curl -X GET http://localhost:8080/accounts/1/transactions
 
-5. Dettaglio movimento: curl -X GET http://localhost:8080/accounts/1/transactions/1
+5. Dettaglio movimento: 
+curl -X GET http://localhost:8080/accounts/1/transactions/1
 
-6. Modificare descrizione movimento: curl -X PUT http://localhost:8080/accounts/1/transactions/1 \
+6. Modificare descrizione movimento: 
+curl -X PUT http://localhost:8080/accounts/1/transactions/1 \
   -H "Content-Type: application/json" \
   -d '{"description": "Stipendio Gennaio 2024"}'
 
-7. Eliminare ultimo movimento: curl -X DELETE http://localhost:8080/accounts/1/transactions/2
+7. Eliminare ultimo movimento: 
+curl -X DELETE http://localhost:8080/accounts/1/transactions/2

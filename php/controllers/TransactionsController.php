@@ -2,8 +2,8 @@
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class TransactionsController
-{
+class TransactionsController{
+  
   private function db(){
     return mysqli_connect('my_mariadb', 'root', '', 'bank');
   }
