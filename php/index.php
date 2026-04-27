@@ -8,7 +8,7 @@ require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/controllers/TransactionsController.php';
 
 $app = AppFactory::create();
-$mysqli = new mysqli("my_mariadb", "root", "", "bank");
+$mysqli = new mysqli("my_mariadb", "root", "ciccio", "bank");
 
 $app->get('/test', function ($req, $res) {
     $res->getBody()->write(json_encode(["msg" => "ciao"]));

@@ -5,7 +5,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class TransactionsController{
   
   private function db(){
-    return mysqli_connect('my_mariadb', 'root', '', 'bank');
+    return mysqli_connect('my_mariadb', 'root', 'ciccio', 'bank');
   }
 
   private function getBalance($db, $accountId) {
